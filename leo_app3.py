@@ -1,9 +1,10 @@
 """
-固定对话，没有用到fastmcp
+自由对话，模型主动调用mcp
 用户 client:
     调用大语言模型：    openai client
-    调用 mcp 服务器：   mcp client
+    调用 mcp 服务器： mcp client
 """
+import json
 import asyncio
 
 from typing import List,Dict
@@ -31,6 +32,7 @@ class UserClient:
                 "content":"你是一个AI助手，你需要借助工具，回答用户问题"
             }
         ]
+        self.tools = []
 
     async def prepare_tools(self):
         tools = await self.mcp_client.list_tools()
@@ -56,29 +58,50 @@ class UserClient:
         # }
 
     async def chat(self, messages: List[Dict]):
+        if not self.tools:
+            self.tools = await self.prepare_tools()
+
         response = self.openai_client.chat.completions.create(
             model=self.model,
             messages=messages,
+            tools=self.tools
         )
-        print(response)
+        if response.choices[0].finish_reason != "tool_calls":
+            return response.choices[0].message
+        
+        # 执行工具
+        for tool_call in response.choices[0].message.tool_calls:
+            response = await self.mcp_client.call_tool(
+                tool_call.function.name, 
+                json.loads(tool_call.function.arguments)
+            )
+            # print(response)
+
+            self.messages.append({
+                'role':'assistant',
+                'content':response[0].text
+            })
+
+            return await self.chat(self.messages)
+
+
 
     async def loop(self):
-        while True:
-            question = input("User:")
-            message = {
-                "role":"user",
-                "content":question
-            }
-            self.messages.append(message)
-            response_message = await self.chat(self.messages)
-            print("AI:",response_message.get('content'))
+        async with self.mcp_client:
+            while True:
+                question = input("User:")
+                message = {
+                    "role":"user",
+                    "content":question
+                }
+                self.messages.append(message)
+                response_message = await self.chat(self.messages)
+                print("AI:",response_message.content)
 
 
 async def main():
     user_client = UserClient()
-    await user_client.chat([
-        {"role":"user","content":"Hello."}
-    ])
+    await user_client.loop()
 
 if __name__ == '__main__':
     asyncio.run(main())
