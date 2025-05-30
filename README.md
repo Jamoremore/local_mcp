@@ -1,6 +1,11 @@
 # local_mcp
 基于fastmcp实现完全的本地MCP服务器，本地大模型调用MCP
 
+# 文件介绍
+
+`leo_app.py`：固定对话，没有用到fastmcp
+`leo_app2.py`：固定对话，但模型主动调用mcp
+`leo_app3.py`：自由对话，模型主动调用mcp
 # 使用方法
 
 打开`leo_app.py`，修改下面的代码，调整里面的base_url和api_key
