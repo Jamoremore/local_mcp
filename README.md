@@ -1,5 +1,5 @@
 # local_mcp
-基于fastmcp实现完全的本地MCP服务器，本地大模型调用MCP
+基于fastmcp的天气查询助手。采用Qwen模型进行实时对话并调用心知天气API回复实时天气情况
 
 # 文件介绍
 
