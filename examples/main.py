@@ -4,8 +4,8 @@ from openai import OpenAI
 
 # 初始化客户端
 client = OpenAI(
-    api_key="sk-96f3241521c04e419da90cf55083e586",
-    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+    api_key="你的api_key",
+    base_url="你的base_url"
 )
 
 # 系统提示词
