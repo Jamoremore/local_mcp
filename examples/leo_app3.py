@@ -22,8 +22,8 @@ class UserClient:
         self.model = model
         self.mcp_client = Client(script)
         self.openai_client = OpenAI(
-            base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
-            api_key="sk-0d4e7900460e47cf8733f225d4aa19cd",
+            base_url="你的base_url",
+            api_key="你的api_key",
             http_client=no_proxy_client
         )
         self.messages = [
